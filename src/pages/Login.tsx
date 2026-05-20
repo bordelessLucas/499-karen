@@ -1,11 +1,8 @@
 import { useMemo, useState } from 'react'
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-} from 'firebase/auth'
-import { auth } from '../config/firebase'
+import { useAuth } from '../contexts/useAuth'
+import { MockAuthError } from '../services/mock-auth'
 
-type AuthMode = 'signin' | 'signup'
+type AuthMode = 'signin' | 'signup' | 'reset'
 
 const authModeContent: Record<
   AuthMode,
@@ -23,30 +20,29 @@ const authModeContent: Record<
     submitLabel: 'Criar conta',
     toggleLabel: 'Já possui conta? Entrar',
   },
+  reset: {
+    title: 'Recuperar senha',
+    subtitle: 'Simulação local: nenhum e-mail será enviado de verdade.',
+    submitLabel: 'Simular recuperação',
+    toggleLabel: 'Voltar para o login',
+  },
 }
 
-function mapFirebaseErrorMessage(errorCode: string) {
-  switch (errorCode) {
-    case 'auth/invalid-email':
-      return 'Informe um e-mail válido.'
-    case 'auth/missing-password':
-      return 'Informe uma senha.'
-    case 'auth/invalid-credential':
-      return 'Credenciais inválidas. Revise e-mail e senha.'
-    case 'auth/email-already-in-use':
-      return 'Este e-mail já está cadastrado.'
-    case 'auth/weak-password':
-      return 'A senha deve conter pelo menos 6 caracteres.'
-    default:
-      return 'Não foi possível concluir a autenticação. Tente novamente.'
+function mapAuthErrorMessage(error: unknown) {
+  if (error instanceof MockAuthError) {
+    return error.message
   }
+
+  return 'Não foi possível concluir a autenticação. Tente novamente.'
 }
 
 export function Login() {
+  const { signIn, signUp, resetPassword } = useAuth()
   const [authMode, setAuthMode] = useState<AuthMode>('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const content = useMemo(() => authModeContent[authMode], [authMode])
@@ -54,29 +50,40 @@ export function Login() {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setErrorMessage('')
+    setSuccessMessage('')
     setIsSubmitting(true)
 
     try {
       if (authMode === 'signin') {
-        await signInWithEmailAndPassword(auth, email, password)
+        await signIn(email, password)
+      } else if (authMode === 'signup') {
+        await signUp(email, password)
       } else {
-        await createUserWithEmailAndPassword(auth, email, password)
+        await resetPassword(email)
+        setSuccessMessage(
+          'Recuperação simulada com sucesso. Use demo@borderless.com / 123456 para testar.',
+        )
       }
     } catch (error) {
-      const firebaseErrorCode =
-        typeof error === 'object' && error && 'code' in error
-          ? String(error.code)
-          : ''
-
-      setErrorMessage(mapFirebaseErrorMessage(firebaseErrorCode))
+      setErrorMessage(mapAuthErrorMessage(error))
     } finally {
       setIsSubmitting(false)
     }
   }
 
   function handleModeToggle() {
-    setAuthMode((currentMode) => (currentMode === 'signin' ? 'signup' : 'signin'))
+    setAuthMode((currentMode) => {
+      if (currentMode === 'reset') return 'signin'
+      return currentMode === 'signin' ? 'signup' : 'signin'
+    })
     setErrorMessage('')
+    setSuccessMessage('')
+  }
+
+  function handleForgotPassword() {
+    setAuthMode('reset')
+    setErrorMessage('')
+    setSuccessMessage('')
   }
 
   return (
@@ -101,8 +108,7 @@ export function Login() {
               MVP Estrutural
             </p>
             <p className="mt-3 text-sm leading-7 text-slate-300">
-              Base pronta para CRM, automações, relatórios e integrações inteligentes
-              com foco em performance e escalabilidade.
+              Autenticação mockada localmente. Conta demo: demo@borderless.com / 123456
             </p>
           </div>
         </section>
@@ -130,29 +136,48 @@ export function Login() {
                   type="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
-                  placeholder="voce@empresa.com"
+                  placeholder="demo@borderless.com"
                   className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100"
                   required
                 />
               </div>
 
-              <div className="space-y-2">
-                <label
-                  className="text-sm font-medium text-slate-700"
-                  htmlFor="password"
-                >
-                  Senha
-                </label>
-                <input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  placeholder="Digite sua senha"
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100"
-                  required
-                />
-              </div>
+              {authMode !== 'reset' ? (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <label
+                      className="text-sm font-medium text-slate-700"
+                      htmlFor="password"
+                    >
+                      Senha
+                    </label>
+                    {authMode === 'signin' ? (
+                      <button
+                        type="button"
+                        onClick={handleForgotPassword}
+                        className="text-xs font-medium text-violet-600 transition hover:text-violet-500"
+                      >
+                        Esqueceu a senha?
+                      </button>
+                    ) : null}
+                  </div>
+                  <input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    placeholder="Digite sua senha"
+                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100"
+                    required
+                  />
+                </div>
+              ) : null}
+
+              {successMessage ? (
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+                  {successMessage}
+                </div>
+              ) : null}
 
               {errorMessage ? (
                 <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">

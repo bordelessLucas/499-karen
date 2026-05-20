@@ -1,9 +1,12 @@
 import { createContext } from 'react'
-import type { User } from 'firebase/auth'
+import type { MockUser } from '../types/auth'
 
 export type AuthContextValue = {
-  currentUser: User | null
+  currentUser: MockUser | null
   isAuthLoading: boolean
+  signIn: (email: string, password: string) => Promise<void>
+  signUp: (email: string, password: string) => Promise<void>
+  resetPassword: (email: string) => Promise<void>
   signOutUser: () => Promise<void>
 }
 

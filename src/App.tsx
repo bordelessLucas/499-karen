@@ -1,6 +1,8 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { Sidebar } from './components/Sidebar'
 import { useAuth } from './contexts/useAuth'
+import { Clientes } from './pages/Clientes'
+import { Dashboard } from './pages/Dashboard'
 import { Login } from './pages/Login'
 
 type PlaceholderPageProps = {
@@ -26,24 +28,8 @@ function DashboardLayout() {
       <Sidebar />
       <main className="flex-1 p-6 md:p-10">
         <Routes>
-          <Route
-            index
-            element={
-              <PlaceholderPage
-                title="Dashboard BORDERLESS"
-                description="Painel inicial preparado para centralizar indicadores, automações e módulos inteligentes do Projeto 499 - Karen."
-              />
-            }
-          />
-          <Route
-            path="clientes"
-            element={
-              <PlaceholderPage
-                title="Área de Clientes"
-                description="Estrutura inicial para evoluir em direção a gestão de contas, histórico de atendimento e visão premium do relacionamento."
-              />
-            }
-          />
+          <Route index element={<Dashboard />} />
+          <Route path="clientes" element={<Clientes />} />
           <Route
             path="crm"
             element={
