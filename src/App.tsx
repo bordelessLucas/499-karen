@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { Sidebar } from './components/Sidebar'
 import { useAuth } from './contexts/useAuth'
 import { Clientes } from './pages/Clientes'
+import { Crm } from './pages/Crm'
 import { Dashboard } from './pages/Dashboard'
 import { Login } from './pages/Login'
 
@@ -26,19 +27,11 @@ function DashboardLayout() {
   return (
     <div className="flex min-h-screen bg-slate-100">
       <Sidebar />
-      <main className="flex-1 p-6 md:p-10">
+      <main className="min-w-0 flex-1 overflow-x-hidden p-6 md:p-10">
         <Routes>
           <Route index element={<Dashboard />} />
           <Route path="clientes" element={<Clientes />} />
-          <Route
-            path="crm"
-            element={
-              <PlaceholderPage
-                title="CRM & Funil"
-                description="Espaço reservado para pipeline comercial, acompanhamento de oportunidades e inteligência operacional."
-              />
-            }
-          />
+          <Route path="crm" element={<Crm />} />
           <Route
             path="automacoes"
             element={
