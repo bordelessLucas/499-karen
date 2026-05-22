@@ -1,27 +1,13 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { Sidebar } from './components/Sidebar'
 import { useAuth } from './contexts/useAuth'
+import { Automations } from './pages/Automations'
 import { Clientes } from './pages/Clientes'
 import { Crm } from './pages/Crm'
 import { Dashboard } from './pages/Dashboard'
 import { Login } from './pages/Login'
-
-type PlaceholderPageProps = {
-  title: string
-  description: string
-}
-
-function PlaceholderPage({ title, description }: PlaceholderPageProps) {
-  return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-      <span className="inline-flex rounded-full bg-violet-100 px-3 py-1 text-sm font-medium text-violet-700">
-        MVP estrutural
-      </span>
-      <h1 className="mt-4 text-3xl font-semibold text-slate-900">{title}</h1>
-      <p className="mt-3 max-w-2xl text-base text-slate-600">{description}</p>
-    </section>
-  )
-}
+import { Reports } from './pages/Reports'
+import { Settings } from './pages/Settings'
 
 function DashboardLayout() {
   return (
@@ -32,33 +18,9 @@ function DashboardLayout() {
           <Route index element={<Dashboard />} />
           <Route path="clientes" element={<Clientes />} />
           <Route path="crm" element={<Crm />} />
-          <Route
-            path="automacoes"
-            element={
-              <PlaceholderPage
-                title="Automações"
-                description="Base preparada para integrar fluxos com IA, gatilhos e orquestrações escaláveis."
-              />
-            }
-          />
-          <Route
-            path="relatorios"
-            element={
-              <PlaceholderPage
-                title="Relatórios"
-                description="Área para métricas estratégicas, análises de performance e crescimento orientado por dados."
-              />
-            }
-          />
-          <Route
-            path="configuracoes"
-            element={
-              <PlaceholderPage
-                title="Configurações"
-                description="Seção destinada às preferências do produto, integrações e administração do ambiente."
-              />
-            }
-          />
+          <Route path="automacoes" element={<Automations />} />
+          <Route path="relatorios" element={<Reports />} />
+          <Route path="configuracoes" element={<Settings />} />
         </Routes>
       </main>
     </div>
