@@ -1,0 +1,6 @@
+# Mantém o upload do monorepo enxuto sem excluir shared/
+node_modules
+.expo
+dist
+*.log
+.vscode

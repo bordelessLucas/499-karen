@@ -1,18 +1,15 @@
-import { ActivityIndicator, Platform, View } from 'react-native'
+import { ActivityIndicator, View } from 'react-native'
 import { Redirect, Tabs } from 'expo-router'
-import { Briefcase, Home, Settings, Users, Zap } from 'lucide-react-native'
 import { useAuth } from '@shared/contexts'
-import { WebAppShell } from '@/components/layout/WebAppShell'
-import { useResponsiveLayout } from '@/hooks/useResponsiveLayout'
+import { SummusAppShell } from '@/components/layout/SummusAppShell'
 
 export default function TabLayout() {
   const { currentUser, isAuthLoading } = useAuth()
-  const { isWebDesktop } = useResponsiveLayout()
 
   if (isAuthLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-slate-100">
-        <ActivityIndicator size="large" color="#7c3aed" />
+      <View className="flex-1 items-center justify-center bg-summus-950">
+        <ActivityIndicator size="large" color="#00D4FF" />
       </View>
     )
   }
@@ -21,69 +18,29 @@ export default function TabLayout() {
     return <Redirect href="/login" />
   }
 
-  const tabs = (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        sceneStyle: isWebDesktop ? undefined : { flex: 1 },
-        tabBarActiveTintColor: '#7c3aed',
-        tabBarInactiveTintColor: '#64748b',
-        tabBarStyle: isWebDesktop
-          ? { display: 'none', height: 0 }
-          : {
-              backgroundColor: '#ffffff',
-              borderTopColor: '#e2e8f0',
-              height: 64,
-              paddingBottom: 8,
-              paddingTop: 8,
-            },
-        tabBarLabelStyle: {
-          fontSize: 10,
-          fontWeight: '600',
-        },
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Início',
-          tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
+  return (
+    <SummusAppShell>
+      <Tabs
+        tabBar={() => null}
+        screenOptions={{
+          headerShown: false,
+          sceneStyle: { flex: 1, backgroundColor: '#F3F6FA' },
         }}
-      />
-      <Tabs.Screen
-        name="clientes"
-        options={{
-          title: 'Clientes',
-          tabBarIcon: ({ color, size }) => <Users color={color} size={size} />,
-        }}
-      />
-      <Tabs.Screen
-        name="crm"
-        options={{
-          title: 'CRM',
-          tabBarIcon: ({ color, size }) => <Briefcase color={color} size={size} />,
-        }}
-      />
-      <Tabs.Screen
-        name="automations"
-        options={{
-          title: 'Automações',
-          tabBarIcon: ({ color, size }) => <Zap color={color} size={size} />,
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: 'Config.',
-          tabBarIcon: ({ color, size }) => <Settings color={color} size={size} />,
-        }}
-      />
-    </Tabs>
+      >
+        <Tabs.Screen name="index" options={{ title: 'Home' }} />
+        <Tabs.Screen name="ai-coach" options={{ title: 'AI Coach' }} />
+        <Tabs.Screen name="learn" options={{ title: 'Learn & Implement' }} />
+        <Tabs.Screen name="tasks" options={{ title: 'Tasks' }} />
+        <Tabs.Screen name="crm" options={{ title: 'CRM' }} />
+        <Tabs.Screen name="marketing" options={{ title: 'Marketing' }} />
+        <Tabs.Screen name="bookings" options={{ title: 'Bookings' }} />
+        <Tabs.Screen name="automations" options={{ title: 'Automations' }} />
+        <Tabs.Screen name="analytics" options={{ title: 'Analytics' }} />
+        <Tabs.Screen name="resources" options={{ title: 'Resources' }} />
+        <Tabs.Screen name="treasure-vault" options={{ title: 'Treasure Vault' }} />
+        <Tabs.Screen name="clientes" options={{ href: null, title: 'Clientes' }} />
+        <Tabs.Screen name="settings" options={{ href: null, title: 'Settings' }} />
+      </Tabs>
+    </SummusAppShell>
   )
-
-  if (Platform.OS === 'web' && isWebDesktop) {
-    return <WebAppShell>{tabs}</WebAppShell>
-  }
-
-  return tabs
 }

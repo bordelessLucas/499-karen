@@ -13,6 +13,7 @@ import { Redirect } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useAuth } from '@shared/contexts'
 import { MockAuthError } from '@shared/services'
+import { SummusLogo } from '@/components/ui/SummusLogo'
 import { useResponsiveLayout } from '@/hooks/useResponsiveLayout'
 
 type AuthMode = 'signin' | 'signup' | 'reset'
@@ -23,7 +24,7 @@ const authModeContent: Record<
 > = {
   signin: {
     title: 'Entrar',
-    subtitle: 'Acesse seu ambiente BORDERLESS com segurança.',
+    subtitle: 'Acesse sua plataforma Summus Edge com segurança.',
     submitLabel: 'Entrar na plataforma',
     toggleLabel: 'Ainda não tem conta? Cadastre-se',
   },
@@ -104,7 +105,9 @@ export default function LoginScreen() {
 
   const form = (
     <View className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-      <Text className="text-sm font-medium text-violet-600">BORDERLESS</Text>
+      <View className="mb-6 items-center">
+        <SummusLogo />
+      </View>
       <Text className="mt-3 text-2xl font-semibold text-slate-900">{content.title}</Text>
       <Text className="mt-2 text-sm text-slate-500">{content.subtitle}</Text>
 
@@ -169,16 +172,13 @@ export default function LoginScreen() {
   if (isWebDesktop) {
     return (
       <View className="min-h-full flex-1 flex-row bg-slate-100">
-        <View className="flex-1 justify-center bg-violet-600 px-16">
-          <Text className="text-sm font-semibold uppercase tracking-[0.25em] text-violet-200">
-            Borderless CRM
+        <View className="flex-1 justify-center bg-summus-900 px-16">
+          <SummusLogo />
+          <Text className="mt-8 max-w-lg text-4xl font-semibold text-white">
+            Gamificação premium e IA para escalar seu negócio.
           </Text>
-          <Text className="mt-4 max-w-lg text-5xl font-semibold text-white">
-            Gestão comercial pensada para desktop.
-          </Text>
-          <Text className="mt-4 max-w-md text-lg text-violet-100">
-            Funil, clientes, automações e relatórios em uma experiência web completa — sem parecer
-            app mobile esticado.
+          <Text className="mt-4 max-w-md text-lg text-slate-400">
+            Funil, coach de IA, automações e analytics em uma experiência Elite.
           </Text>
         </View>
         <View className="w-[480px] shrink-0 items-center justify-center px-10">

@@ -8,6 +8,12 @@ export type {
   TaskPriority,
 } from './crm'
 export type {
+  GamificationLevel,
+  GamificationProgress,
+  GamificationStats,
+  UserGamificationState,
+} from './gamification'
+export type {
   ClientWithPipeline,
   KanbanCardWithClient,
   LinkedCrmSnapshot,

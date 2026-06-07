@@ -9,14 +9,13 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import 'react-native-reanimated'
 import { configureStorage } from '@shared/storage'
-import { AuthProvider } from '@shared/contexts'
+import { AuthProvider, GamificationProvider } from '@shared/contexts'
 import { createAsyncStorageAdapter } from '@/lib/async-storage'
-import { initializeFirebase } from '@/lib/firebase'
+import { FirebaseBootstrap } from '@/components/FirebaseBootstrap'
 
 export { ErrorBoundary } from 'expo-router'
 
 configureStorage(createAsyncStorageAdapter())
-initializeFirebase()
 
 SplashScreen.preventAutoHideAsync()
 
@@ -42,21 +41,25 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <AuthProvider>
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="login" />
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen
-              name="reports"
-              options={{
-                headerShown: Platform.OS !== 'web',
-                title: 'Relatórios',
-                headerStyle: { backgroundColor: '#f8fafc' },
-                headerTintColor: '#7c3aed',
-              }}
-            />
-          </Stack>
-        </AuthProvider>
+        <FirebaseBootstrap>
+          <AuthProvider>
+            <GamificationProvider>
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="login" />
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen
+                  name="reports"
+                  options={{
+                    headerShown: Platform.OS !== 'web',
+                    title: 'Relatórios',
+                    headerStyle: { backgroundColor: '#0B1220' },
+                    headerTintColor: '#00D4FF',
+                  }}
+                />
+              </Stack>
+            </GamificationProvider>
+          </AuthProvider>
+        </FirebaseBootstrap>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   )

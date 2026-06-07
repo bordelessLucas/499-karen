@@ -1,3 +1,6 @@
 export { AuthProvider } from './AuthContext'
 export { AuthContext, type AuthContextValue } from './auth-context'
 export { useAuth } from './useAuth'
+export { GamificationProvider } from './GamificationContext'
+export { GamificationContext, type GamificationContextValue } from './gamification-context'
+export { useGamification } from './useGamification'
