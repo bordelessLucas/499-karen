@@ -18,21 +18,21 @@ export function SummusAppShell({ children }: SummusAppShellProps) {
   }
 
   return (
-    <View className="min-h-full flex-1 flex-row bg-slate-100">
+    <View className="min-h-full flex-1 flex-row bg-deepBlue">
       {showPersistentSidebar ? (
         <View className="h-full shrink-0 self-stretch">
           <SummusNavigation />
         </View>
       ) : null}
 
-      <View className="relative min-h-full flex-1 bg-[#F3F6FA]">
+      <View className="relative min-h-full flex-1 bg-[#F8FAFC]">
         {!showPersistentSidebar ? (
           <View className="absolute left-4 top-12 z-20">
             <Pressable
               onPress={() => setIsMobileMenuOpen(true)}
-              className="rounded-xl border border-slate-200 bg-white p-2.5 shadow-sm"
+              className="rounded-xl border border-white/20 bg-deepBlue p-2.5"
             >
-              <Menu size={20} color="#0F172A" />
+              <Menu size={20} color="#F59E0B" />
             </Pressable>
           </View>
         ) : null}
@@ -54,9 +54,9 @@ export function SummusAppShell({ children }: SummusAppShellProps) {
               <SummusNavigation onNavigate={closeMobileMenu} />
             </View>
             <Pressable className="flex-1" onPress={closeMobileMenu}>
-              <View className="flex-1 items-start pt-14 pl-2">
-                <View className="rounded-full bg-white p-2">
-                  <X size={18} color="#64748B" />
+              <View className="flex-1 items-start pl-2 pt-14">
+                <View className="rounded-full bg-white/10 p-2">
+                  <X size={18} color="#94A3B8" />
                 </View>
               </View>
             </Pressable>

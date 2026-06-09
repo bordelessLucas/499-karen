@@ -12,8 +12,8 @@ export function SummusNavigation({ onNavigate }: SummusNavigationProps) {
   const pathname = usePathname()
 
   return (
-    <View className="h-full w-[272px] bg-summus-900">
-      <View className="border-b border-summus-700/80 px-5 py-5 items-center">
+    <View className="h-full w-[272px] bg-deepBlue">
+      <View className="items-center border-b border-white/10 px-5 py-5">
         <SummusLogo compact />
       </View>
 
@@ -31,18 +31,18 @@ export function SummusNavigation({ onNavigate }: SummusNavigationProps) {
               <Pressable
                 onPress={onNavigate}
                 className={[
-                  'flex-row items-center gap-3 rounded-lg py-2.5 pl-3 pr-3',
-                  isActive ? 'bg-summus-800' : 'bg-transparent',
+                  'flex-row items-center gap-3 rounded-2xl py-2.5 pl-3 pr-3',
+                  isActive ? 'bg-white/10' : 'bg-transparent',
                 ].join(' ')}
               >
                 {isActive ? (
-                  <View className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-gold-400" />
+                  <View className="absolute bottom-2 left-0 top-2 w-1 rounded-r-full bg-gold" />
                 ) : null}
-                <Icon size={18} color={isActive ? '#FBBF24' : '#64748B'} />
+                <Icon size={18} color={isActive ? '#F59E0B' : '#94A3B8'} />
                 <Text
                   className={[
                     'flex-1 text-[13px] font-medium',
-                    isActive ? 'font-semibold text-gold-400' : 'text-slate-400',
+                    isActive ? 'font-semibold text-gold' : 'text-white/50',
                   ].join(' ')}
                   numberOfLines={1}
                 >
@@ -54,7 +54,7 @@ export function SummusNavigation({ onNavigate }: SummusNavigationProps) {
         })}
       </ScrollView>
 
-      <View className="border-t border-summus-700/80 p-4">
+      <View className="border-t border-white/10 p-4">
         <GamificationProfileCard />
       </View>
     </View>

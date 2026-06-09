@@ -1,17 +1,5 @@
 import type { LucideIcon } from 'lucide-react-native'
-import {
-  BarChart3,
-  BookOpen,
-  Bot,
-  Briefcase,
-  Calendar,
-  CheckSquare,
-  FolderOpen,
-  Gem,
-  LayoutGrid,
-  Megaphone,
-  Zap,
-} from 'lucide-react-native'
+import { BookOpen, Bot, Gem, LayoutGrid } from 'lucide-react-native'
 
 export type SummusNavItem = {
   href: string
@@ -38,48 +26,6 @@ export const summusNavItems: SummusNavItem[] = [
     label: 'Learn & Implement',
     icon: BookOpen,
     match: (path) => path.includes('learn'),
-  },
-  {
-    href: '/(tabs)/tasks',
-    label: 'Tasks',
-    icon: CheckSquare,
-    match: (path) => path.includes('tasks'),
-  },
-  {
-    href: '/(tabs)/crm',
-    label: 'CRM',
-    icon: Briefcase,
-    match: (path) => path.includes('crm'),
-  },
-  {
-    href: '/(tabs)/marketing',
-    label: 'Marketing',
-    icon: Megaphone,
-    match: (path) => path.includes('marketing'),
-  },
-  {
-    href: '/(tabs)/bookings',
-    label: 'Bookings',
-    icon: Calendar,
-    match: (path) => path.includes('bookings'),
-  },
-  {
-    href: '/(tabs)/automations',
-    label: 'Automations',
-    icon: Zap,
-    match: (path) => path.includes('automations'),
-  },
-  {
-    href: '/(tabs)/analytics',
-    label: 'Analytics',
-    icon: BarChart3,
-    match: (path) => path.includes('analytics'),
-  },
-  {
-    href: '/(tabs)/resources',
-    label: 'Resources',
-    icon: FolderOpen,
-    match: (path) => path.includes('resources'),
   },
   {
     href: '/(tabs)/treasure-vault',

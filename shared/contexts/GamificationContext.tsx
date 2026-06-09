@@ -112,3 +112,5 @@ export function GamificationProvider({
     <GamificationContext.Provider value={contextValue}>{children}</GamificationContext.Provider>
   )
 }
+
+export { useGamification } from './useGamification'
