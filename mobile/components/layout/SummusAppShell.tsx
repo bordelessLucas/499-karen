@@ -25,7 +25,7 @@ export function SummusAppShell({ children }: SummusAppShellProps) {
         </View>
       ) : null}
 
-      <View className="relative min-h-full flex-1 bg-[#F8FAFC]">
+      <View className="relative min-h-full flex-1 bg-deepBlue">
         {!showPersistentSidebar ? (
           <View className="absolute left-4 top-12 z-20">
             <Pressable

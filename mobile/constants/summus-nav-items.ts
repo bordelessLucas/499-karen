@@ -1,5 +1,12 @@
 import type { LucideIcon } from 'lucide-react-native'
-import { BookOpen, Bot, Gem, LayoutGrid } from 'lucide-react-native'
+import {
+  BookOpen,
+  Bot,
+  Briefcase,
+  Gem,
+  LayoutGrid,
+  Zap,
+} from 'lucide-react-native'
 
 export type SummusNavItem = {
   href: string
@@ -26,6 +33,18 @@ export const summusNavItems: SummusNavItem[] = [
     label: 'Learn & Implement',
     icon: BookOpen,
     match: (path) => path.includes('learn'),
+  },
+  {
+    href: '/(tabs)/crm',
+    label: 'CRM Assistente',
+    icon: Briefcase,
+    match: (path) => path.includes('crm'),
+  },
+  {
+    href: '/(tabs)/automations',
+    label: 'Automações',
+    icon: Zap,
+    match: (path) => path.includes('automations'),
   },
   {
     href: '/(tabs)/treasure-vault',

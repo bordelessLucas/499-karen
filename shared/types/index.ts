@@ -8,9 +8,15 @@ export type {
   TaskPriority,
 } from './crm'
 export type {
+  BusinessHealthCategoryKey,
+  BusinessHealthScores,
+  CompanyTier,
+  GamificationEconomy,
   GamificationLevel,
   GamificationProgress,
   GamificationStats,
+  MissionImpactCategory,
+  RecentActivityItem,
   UserGamificationState,
 } from './gamification'
 export type {

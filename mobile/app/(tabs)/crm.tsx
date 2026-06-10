@@ -1,477 +1,215 @@
-import { useCallback, useEffect, useState } from 'react'
-
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-
   ActivityIndicator,
-
+  Alert,
   Pressable,
-
   RefreshControl,
-
+  ScrollView,
   Text,
-
   View,
-
 } from 'react-native'
-
-import { categoryLabels, priorityLabels } from '@shared/data'
-
+import { SafeAreaView } from 'react-native-safe-area-context'
 import type { KanbanCardWithClient } from '@shared/types'
-
 import { Mail, X } from 'lucide-react-native'
-
-import { AppScreen } from '@/components/layout/AppScreen'
-
-import { PageScroll } from '@/components/layout/PageScroll'
-
 import { ResponsiveDialog } from '@/components/layout/ResponsiveDialog'
-
-import { CrmKanbanBoard } from '@/components/crm/CrmKanbanBoard'
-
-import { ScreenHeader } from '@/components/ui/ScreenHeader'
-
+import { CrmAiAlertBanner } from '@/components/crm/CrmAiAlertBanner'
+import { CrmAssistantView } from '@/components/crm/CrmAssistantView'
 import { useResponsiveLayout } from '@/hooks/useResponsiveLayout'
-
-import {
-
-  loadLinkedCrmSnapshot,
-
-  moveOpportunityToColumn,
-
-  seedLinkedDemoData,
-
-} from '@/lib/crm-client-service'
-import { buildOptimisticCards } from '@/lib/crm-optimistic'
-
-
+import { countInactiveLeads, partitionLeads } from '@/lib/crm-lead-insights'
+import { loadLinkedCrmSnapshot, seedLinkedDemoData } from '@/lib/crm-client-service'
 
 export default function CrmScreen() {
-
-  const { isWebDesktop } = useResponsiveLayout()
-
-  const [columns, setColumns] = useState<Awaited<ReturnType<typeof loadLinkedCrmSnapshot>>['columns']>([])
+  const { isWebDesktop, width } = useResponsiveLayout()
+  const isWideLayout = width >= 768
 
   const [cards, setCards] = useState<KanbanCardWithClient[]>([])
-
   const [isLoading, setIsLoading] = useState(true)
-
   const [isSeeding, setIsSeeding] = useState(false)
-
   const [error, setError] = useState<string | null>(null)
-
-  const [selectedCard, setSelectedCard] = useState<KanbanCardWithClient | null>(null)
-
-  const [activeDragCardId, setActiveDragCardId] = useState<string | null>(null)
-  const [overColumnId, setOverColumnId] = useState<string | null>(null)
-
-
+  const [selectedLead, setSelectedLead] = useState<KanbanCardWithClient | null>(null)
 
   const loadCrm = useCallback(async () => {
-
     setIsLoading(true)
-
     setError(null)
 
-
-
     try {
-
       const snapshot = await loadLinkedCrmSnapshot()
-
-      setColumns(snapshot.columns)
-
       setCards(snapshot.cards)
-
     } catch (loadError) {
-
       const message =
-
-        loadError instanceof Error ? loadError.message : 'Não foi possível carregar o funil.'
-
+        loadError instanceof Error ? loadError.message : 'Não foi possível carregar os leads.'
       setError(message)
-
     } finally {
-
       setIsLoading(false)
-
     }
-
   }, [])
 
-
-
   useEffect(() => {
-
     void loadCrm()
-
   }, [loadCrm])
 
-
-
   async function handleSeedDemoData() {
-
     setIsSeeding(true)
-
     setError(null)
 
-
-
     try {
-
       const snapshot = await seedLinkedDemoData()
-
-      setColumns(snapshot.columns)
-
       setCards(snapshot.cards)
-
     } catch (seedError) {
-
       const message =
-
-        seedError instanceof Error ? seedError.message : 'Não foi possível importar o funil demo.'
-
+        seedError instanceof Error ? seedError.message : 'Não foi possível importar os leads demo.'
       setError(message)
-
     } finally {
-
       setIsSeeding(false)
-
     }
-
   }
 
+  const { hotLeads, coldLeads } = useMemo(() => partitionLeads(cards), [cards])
+  const inactiveLeadsCount = useMemo(() => countInactiveLeads(cards), [cards])
 
-
-  const handleMoveCard = useCallback(
-    async (cardId: string, targetColumnId: string, targetIndex?: number) => {
-      const movingCard = cards.find((card) => card.id === cardId)
-      if (!movingCard) {
-        return
-      }
-
-      if (movingCard.columnId === targetColumnId) {
-        return
-      }
-
-      const previousCards = cards
-      const optimisticCards = buildOptimisticCards(
-        cards,
-        columns,
-        cardId,
-        targetColumnId,
-        targetIndex,
-      )
-
-      setCards(optimisticCards)
-      setError(null)
-
-      try {
-        await moveOpportunityToColumn(cardId, targetColumnId, targetIndex)
-      } catch (moveError) {
-        setCards(previousCards)
-        const message =
-          moveError instanceof Error ? moveError.message : 'Não foi possível mover a oportunidade.'
-        setError(message)
-      }
-    },
-    [cards, columns],
-  )
-
-
-
-  if (isLoading && columns.length === 0) {
-
+  if (isLoading && cards.length === 0) {
     return (
-
-      <AppScreen className="items-center justify-center">
-
-        <ActivityIndicator size="large" color="#7c3aed" />
-
-        <Text className="mt-3 text-sm text-slate-500">Carregando funil...</Text>
-
-      </AppScreen>
-
+      <SafeAreaView className="flex-1 items-center justify-center bg-deepBlue" edges={['top']}>
+        <ActivityIndicator size="large" color="#3B82F6" />
+        <Text className="mt-3 text-sm text-white/50">A IA está a analisar os seus leads...</Text>
+      </SafeAreaView>
     )
-
   }
 
-
-
-  if (columns.length === 0 && !isLoading) {
-
+  if (cards.length === 0 && !isLoading) {
     return (
-
-      <AppScreen>
-
-        <PageScroll
-
-          contentClassName="flex-1 justify-center"
-
+      <SafeAreaView className="flex-1 bg-deepBlue" edges={['top']}>
+        <ScrollView
+          className="flex-1"
+          contentContainerClassName={[
+            'flex-1 justify-center gap-6 px-5 pb-10 pt-4',
+            isWebDesktop ? 'px-8' : '',
+          ].join(' ')}
           refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => void loadCrm()} />}
-
         >
-
-          <ScreenHeader
-
-            badge="Pipeline comercial"
-
-            title="CRM & Funil"
-
-            description="Puxe para atualizar — clientes existentes serão sincronizados automaticamente."
-
-          />
+          <View className="gap-3">
+            <Text className="text-3xl font-bold text-white">CRM Assistente</Text>
+            <Text className="text-sm text-white/60">
+              Menos cliques, mais ações automáticas para converter leads.
+            </Text>
+          </View>
 
           {error ? (
-
-            <View className="rounded-2xl border border-red-200 bg-red-50 p-4">
-
-              <Text className="text-sm text-red-700">{error}</Text>
-
+            <View className="rounded-2xl border border-red-400/30 bg-red-500/10 p-4">
+              <Text className="text-sm text-red-300">{error}</Text>
             </View>
-
           ) : null}
 
-          <View className="items-center gap-4 rounded-3xl border border-dashed border-slate-300 bg-white p-8">
-
-            <Text className="text-center text-base font-medium text-slate-800">
-
-              Funil ainda não configurado
-
+          <View className="items-center gap-4 rounded-3xl border border-dashed border-white/20 bg-white/5 p-8">
+            <Text className="text-center text-base font-medium text-white">
+              Nenhum lead encontrado ainda
             </Text>
-
             <Pressable
-
               onPress={() => void loadCrm()}
-
               disabled={isLoading}
-
-              className="rounded-full bg-violet-600 px-5 py-3"
-
+              className="rounded-2xl bg-electricBlue px-5 py-3 active:opacity-80"
             >
-
-              <Text className="font-medium text-white">
-
-                {isLoading ? 'Sincronizando...' : 'Sincronizar clientes'}
-
+              <Text className="font-semibold text-white">
+                {isLoading ? 'Sincronizando...' : 'Sincronizar leads'}
               </Text>
-
             </Pressable>
-
             <Pressable
-
               onPress={() => void handleSeedDemoData()}
-
               disabled={isSeeding}
-
-              className="rounded-full border border-slate-200 bg-white px-5 py-3"
-
+              className="rounded-2xl border border-white/20 px-5 py-3 active:opacity-70"
             >
-
-              <Text className="font-medium text-slate-600">
-
-                {isSeeding ? 'Importando...' : 'Ou importar funil demo'}
-
+              <Text className="font-medium text-white/70">
+                {isSeeding ? 'Importando...' : 'Importar leads demo'}
               </Text>
-
             </Pressable>
-
           </View>
-
-        </PageScroll>
-
-      </AppScreen>
-
+        </ScrollView>
+      </SafeAreaView>
     )
-
   }
 
-
-
   return (
-
-    <AppScreen fullWidth={isWebDesktop}>
-
-      <PageScroll
-
-        refreshControl={
-
-          isWebDesktop ? undefined : (
-
-            <RefreshControl refreshing={isLoading} onRefresh={() => void loadCrm()} />
-
-          )
-
-        }
-
+    <SafeAreaView className="flex-1 bg-deepBlue" edges={['top']}>
+      <ScrollView
+        className="flex-1"
+        contentContainerClassName={[
+          'gap-6 pb-10 pt-4',
+          isWebDesktop ? 'px-8' : 'px-5',
+        ].join(' ')}
+        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => void loadCrm()} />}
+        showsVerticalScrollIndicator={false}
       >
+        <View className="gap-2">
+          <Text className="text-3xl font-bold text-white">CRM Assistente</Text>
+          <Text className="text-sm text-white/60">
+            A IA prioriza quem converter agora — sem Kanban, sem fricção.
+          </Text>
+        </View>
 
-        <ScreenHeader
-
-          badge="Pipeline comercial"
-
-          title="CRM & Funil"
-
-          description={
-
-            isWebDesktop
-
-              ? 'Arraste e solte oportunidades entre as colunas do funil.'
-
-              : 'Pressione e segure um card, depois arraste entre as etapas.'
-
-          }
-
-        />
-
-
+        <CrmAiAlertBanner inactiveLeadsCount={inactiveLeadsCount} />
 
         {error ? (
-
-          <View className="rounded-2xl border border-red-200 bg-red-50 p-4">
-
-            <Text className="text-sm text-red-700">{error}</Text>
-
+          <View className="rounded-2xl border border-red-400/30 bg-red-500/10 p-4">
+            <Text className="text-sm text-red-300">{error}</Text>
           </View>
-
         ) : null}
 
-
-
-        <CrmKanbanBoard
-
-          columns={columns}
-
-          cards={cards}
-
-          onCardPress={setSelectedCard}
-
-          onMoveCard={(cardId, targetColumnId, targetIndex) => {
-
-            void handleMoveCard(cardId, targetColumnId, targetIndex)
-
-          }}
-
-          activeDragCardId={activeDragCardId}
-
-          onDragStart={setActiveDragCardId}
-          onDragEnd={() => {
-            setActiveDragCardId(null)
-            setOverColumnId(null)
-          }}
-          overColumnId={overColumnId}
-          onDragOver={setOverColumnId}
+        <CrmAssistantView
+          hotLeads={hotLeads}
+          coldLeads={coldLeads}
+          isWideLayout={isWideLayout}
+          onLeadPress={setSelectedLead}
         />
+      </ScrollView>
 
-      </PageScroll>
-
-
-
-      <ResponsiveDialog visible={selectedCard !== null} onClose={() => setSelectedCard(null)}>
-
-        {selectedCard ? (
-
+      <ResponsiveDialog visible={selectedLead !== null} onClose={() => setSelectedLead(null)}>
+        {selectedLead ? (
           <>
-
             <View className="mb-4 flex-row items-start justify-between gap-4">
-
               <View className="flex-1">
-
-                <View className="flex-row flex-wrap gap-2">
-
-                  <View className="rounded-full bg-violet-100 px-2.5 py-0.5">
-
-                    <Text className="text-xs font-medium text-violet-700">
-
-                      {categoryLabels[selectedCard.category]}
-
-                    </Text>
-
-                  </View>
-
-                  <Text className="text-xs font-medium text-amber-700">
-
-                    Prioridade {priorityLabels[selectedCard.priority].toLowerCase()}
-
-                  </Text>
-
-                </View>
-
-                <Text className="mt-3 text-xl font-semibold text-slate-900">{selectedCard.title}</Text>
-
+                <Text className="text-xs font-bold uppercase tracking-wider text-electricBlue">
+                  Detalhe do lead
+                </Text>
+                <Text className="mt-2 text-xl font-bold text-slate-900">{selectedLead.clientName}</Text>
+                <Text className="mt-1 text-sm text-slate-500">{selectedLead.title}</Text>
               </View>
-
-              <Pressable onPress={() => setSelectedCard(null)} className="rounded-xl bg-slate-100 p-2">
-
+              <Pressable onPress={() => setSelectedLead(null)} className="rounded-xl bg-slate-100 p-2">
                 <X size={18} color="#64748b" />
-
               </Pressable>
-
             </View>
 
-            <Text className="text-sm font-medium text-slate-700">Descrição</Text>
-
-            <Text className="mt-2 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
-
-              {selectedCard.description || 'Nenhuma descrição informada.'}
-
+            <Text className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
+              {selectedLead.description || 'Sem descrição adicional.'}
             </Text>
 
-            <View className="mt-4 gap-3">
-
-              <View className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-
-                <Text className="text-xs font-medium text-slate-500">Cliente vinculado</Text>
-
-                <Text className="mt-1 font-medium text-slate-900">{selectedCard.displayClientName}</Text>
-
-                {selectedCard.client ? (
-
-                  <>
-
-                    <Text className="mt-1 text-sm text-slate-500">{selectedCard.client.company}</Text>
-
-                    <View className="mt-2 flex-row items-center gap-1.5">
-
-                      <Mail size={12} color="#64748b" />
-
-                      <Text className="text-xs text-slate-500">{selectedCard.client.email}</Text>
-
-                    </View>
-
-                  </>
-
-                ) : (
-
-                  <Text className="mt-1 text-xs text-amber-600">Lead sem cadastro vinculado.</Text>
-
-                )}
-
+            {selectedLead.client ? (
+              <View className="mt-4 rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                <Text className="text-xs font-medium text-slate-500">Empresa</Text>
+                <Text className="mt-1 font-medium text-slate-900">{selectedLead.client.company}</Text>
+                <View className="mt-2 flex-row items-center gap-1.5">
+                  <Mail size={12} color="#64748b" />
+                  <Text className="text-xs text-slate-500">{selectedLead.client.email}</Text>
+                </View>
               </View>
-
-            </View>
+            ) : null}
 
             <Pressable
-
-              onPress={() => setSelectedCard(null)}
-
-              className="mt-6 rounded-2xl bg-violet-600 py-3"
-
+              onPress={() => {
+                setSelectedLead(null)
+                Alert.alert(
+                  'Follow-up agendado',
+                  `A IA vai contactar ${selectedLead.clientName} nas próximas horas.`,
+                )
+              }}
+              className="mt-6 rounded-2xl bg-electricBlue py-3 active:opacity-80"
             >
-
-              <Text className="text-center text-sm font-semibold text-white">Fechar</Text>
-
+              <Text className="text-center text-sm font-bold text-white">
+                Deixar a IA Agir Agora
+              </Text>
             </Pressable>
-
           </>
-
         ) : null}
-
       </ResponsiveDialog>
-
-    </AppScreen>
-
+    </SafeAreaView>
   )
-
 }
-
-

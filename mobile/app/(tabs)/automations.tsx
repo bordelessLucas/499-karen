@@ -20,6 +20,7 @@ import {
   Users,
   Zap,
 } from 'lucide-react-native'
+import { useResponsiveLayout } from '@/hooks/useResponsiveLayout'
 
 type AgentId =
   | 'marketing-therapist'
@@ -116,32 +117,32 @@ function ActiveAgentCard({ agent, onPause, onConfigure }: ActiveAgentCardProps) 
   const Icon = agent.icon
 
   return (
-    <View className="mr-4 w-72 rounded-3xl border border-summus-700 bg-summus-900 p-5">
+    <View className="mr-4 w-72 rounded-3xl border border-white/10 bg-white/5 p-5">
       <View className="flex-row items-start justify-between gap-3">
-        <View className="h-11 w-11 items-center justify-center rounded-2xl bg-electric-600/20">
-          <Icon size={22} color="#38BDF8" />
+        <View className="h-11 w-11 items-center justify-center rounded-2xl bg-electricBlue/20">
+          <Icon size={22} color="#3B82F6" />
         </View>
-        <View className="rounded-full bg-emerald-500/15 px-2.5 py-1">
-          <Text className="text-xs font-semibold text-emerald-400">🟢 Online</Text>
+        <View className="rounded-full bg-emerald/15 px-2.5 py-1">
+          <Text className="text-xs font-semibold text-emerald">🟢 Online</Text>
         </View>
       </View>
 
       <Text className="mt-4 text-lg font-bold text-white">{agent.name}</Text>
-      <Text className="mt-2 text-sm leading-5 text-gray-400">{agent.metric}</Text>
+      <Text className="mt-2 text-sm leading-5 text-white/50">{agent.metric}</Text>
 
       <View className="mt-5 flex-row gap-2">
         <Pressable
           onPress={onPause}
-          className="flex-1 rounded-2xl border border-summus-600 py-2.5 active:opacity-70"
+          className="flex-1 rounded-2xl border border-white/15 py-2.5 active:opacity-70"
         >
-          <Text className="text-center text-sm font-semibold text-slate-300">Pausar</Text>
+          <Text className="text-center text-sm font-semibold text-white/70">Pausar</Text>
         </Pressable>
         <Pressable
           onPress={onConfigure}
-          className="flex-1 flex-row items-center justify-center gap-1.5 rounded-2xl border border-summus-600 py-2.5 active:opacity-70"
+          className="flex-1 flex-row items-center justify-center gap-1.5 rounded-2xl border border-white/15 py-2.5 active:opacity-70"
         >
           <Settings size={14} color="#94A3B8" />
-          <Text className="text-sm font-semibold text-slate-300">Configurar</Text>
+          <Text className="text-sm font-semibold text-white/70">Configurar</Text>
         </Pressable>
       </View>
     </View>
@@ -157,20 +158,20 @@ function AvailableAgentCard({ agent, onActivate }: AvailableAgentCardProps) {
   const Icon = agent.icon
 
   return (
-    <View className="rounded-3xl border border-summus-700 bg-summus-900 p-5">
+    <View className="rounded-3xl border border-white/10 bg-white/5 p-5">
       <View className="flex-row items-start gap-4">
-        <View className="h-14 w-14 items-center justify-center rounded-2xl bg-electric-600/15">
-          <Icon size={26} color="#0EA5E9" />
+        <View className="h-14 w-14 items-center justify-center rounded-2xl bg-electricBlue/15">
+          <Icon size={26} color="#3B82F6" />
         </View>
         <View className="flex-1">
           <Text className="text-base font-bold text-white">{agent.name}</Text>
-          <Text className="mt-1.5 text-sm leading-5 text-gray-400">{agent.description}</Text>
+          <Text className="mt-1.5 text-sm leading-5 text-white/50">{agent.description}</Text>
         </View>
       </View>
 
       <Pressable
         onPress={onActivate}
-        className="mt-5 rounded-2xl bg-blue-600 py-3.5 active:bg-blue-500"
+        className="mt-5 rounded-2xl bg-electricBlue py-3.5 active:opacity-80"
       >
         <Text className="text-center text-sm font-bold text-white">Ativar Agente</Text>
       </Pressable>
@@ -179,6 +180,7 @@ function AvailableAgentCard({ agent, onActivate }: AvailableAgentCardProps) {
 }
 
 export default function AutomationsScreen() {
+  const { isWebDesktop } = useResponsiveLayout()
   const [activeAgentIds, setActiveAgentIds] = useState<AgentId[]>(['marketing-therapist'])
 
   const activeAgents = AGENT_CATALOG.filter((agent) => activeAgentIds.includes(agent.id))
@@ -202,21 +204,24 @@ export default function AutomationsScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-900" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-deepBlue" edges={['top']}>
       <ScrollView
         className="flex-1"
-        contentContainerClassName="gap-8 px-5 pb-10 pt-4"
+        contentContainerClassName={[
+          'gap-8 pb-10 pt-4',
+          isWebDesktop ? 'px-8' : 'px-5',
+        ].join(' ')}
         showsVerticalScrollIndicator={false}
       >
         <View className="gap-3">
-          <View className="self-start rounded-full border border-gold-500/40 bg-gold-500/10 px-3 py-1.5">
-            <Text className="text-xs font-bold uppercase tracking-wider text-gold-400">
+          <View className="self-start rounded-full border border-gold/40 bg-gold/10 px-3 py-1.5">
+            <Text className="text-xs font-bold uppercase tracking-wider text-gold">
               Level 5 Unlocked: Automations
             </Text>
           </View>
 
           <Text className="text-3xl font-bold text-white">AI Workforce</Text>
-          <Text className="text-base leading-6 text-gray-400">
+          <Text className="text-base leading-6 text-white/60">
             Contrate agentes inteligentes para escalar sua operação 24/7.
           </Text>
         </View>
@@ -224,8 +229,8 @@ export default function AutomationsScreen() {
         <View className="gap-4">
           <View className="flex-row items-center justify-between">
             <Text className="text-lg font-semibold text-white">Sua Equipe Ativa</Text>
-            <View className="rounded-full bg-summus-800 px-2.5 py-1">
-              <Text className="text-xs font-medium text-slate-400">
+            <View className="rounded-full bg-white/10 px-2.5 py-1">
+              <Text className="text-xs font-medium text-white/50">
                 {activeAgents.length} agente{activeAgents.length !== 1 ? 's' : ''}
               </Text>
             </View>
@@ -248,8 +253,8 @@ export default function AutomationsScreen() {
               ))}
             </ScrollView>
           ) : (
-            <View className="rounded-3xl border border-dashed border-summus-700 bg-summus-900/50 p-6">
-              <Text className="text-center text-sm text-gray-400">
+            <View className="rounded-3xl border border-dashed border-white/15 bg-white/5 p-6">
+              <Text className="text-center text-sm text-white/50">
                 Nenhum agente ativo. Ative um agente na loja abaixo para começar.
               </Text>
             </View>
@@ -259,9 +264,9 @@ export default function AutomationsScreen() {
         <View className="gap-4">
           <View className="flex-row items-center justify-between">
             <Text className="text-lg font-semibold text-white">Loja de Agentes</Text>
-            <View className="flex-row items-center gap-1 rounded-full bg-electric-600/15 px-2.5 py-1">
-              <Zap size={12} color="#38BDF8" />
-              <Text className="text-xs font-medium text-electric-400">Ativar com 1 Clique</Text>
+            <View className="flex-row items-center gap-1 rounded-full bg-electricBlue/15 px-2.5 py-1">
+              <Zap size={12} color="#3B82F6" />
+              <Text className="text-xs font-medium text-electricBlue">Ativar com 1 Clique</Text>
             </View>
           </View>
 

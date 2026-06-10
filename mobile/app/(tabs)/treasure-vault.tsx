@@ -1,10 +1,5 @@
-import { SummusPlaceholderScreen } from '@/components/layout/SummusPlaceholderScreen'
+import { ProgressVault } from '@/components/progress/ProgressVault'
 
 export default function TreasureVaultScreen() {
-  return (
-    <SummusPlaceholderScreen
-      title="Treasure Vault"
-      description="Recompensas exclusivas, badges raras e conteúdos desbloqueáveis do programa Elite."
-    />
-  )
+  return <ProgressVault />
 }
