@@ -1,10 +1,13 @@
 import { ActivityIndicator, View } from 'react-native'
 import { Redirect, Tabs } from 'expo-router'
-import { useAuth } from '@shared/contexts'
+import { useAuth, useGamification } from '@shared/contexts'
+import { OnboardingModal } from '@/components/OnboardingModal'
 import { SummusAppShell } from '@/components/layout/SummusAppShell'
+import { SummusBottomTabBar } from '@/components/layout/SummusBottomTabBar'
 
 export default function TabLayout() {
   const { currentUser, isAuthLoading } = useAuth()
+  const { isOnboardingComplete } = useGamification()
 
   if (isAuthLoading) {
     return (
@@ -20,26 +23,48 @@ export default function TabLayout() {
 
   return (
     <SummusAppShell>
+      <OnboardingModal visible={!isOnboardingComplete} />
       <Tabs
-        tabBar={() => null}
+        tabBar={(props) => <SummusBottomTabBar {...props} />}
         screenOptions={{
           headerShown: false,
-          sceneStyle: { flex: 1, backgroundColor: '#0F172A' },
+          animation: 'fade',
+          sceneStyle: { flex: 1, backgroundColor: '#F8FAFC' },
+          tabBarStyle: { backgroundColor: '#0F172A', borderTopColor: 'rgba(255,255,255,0.1)' },
         }}
       >
-        <Tabs.Screen name="index" options={{ title: 'Home' }} />
-        <Tabs.Screen name="ai-coach" options={{ title: 'AI Coach' }} />
-        <Tabs.Screen name="learn" options={{ title: 'Learn & Implement' }} />
-        <Tabs.Screen name="crm" options={{ title: 'CRM Assistente' }} />
-        <Tabs.Screen name="automations" options={{ title: 'Automações' }} />
-        <Tabs.Screen name="treasure-vault" options={{ title: 'Treasure Vault' }} />
-        <Tabs.Screen name="tasks" options={{ href: null, title: 'Tasks' }} />
-        <Tabs.Screen name="marketing" options={{ href: null, title: 'Marketing' }} />
-        <Tabs.Screen name="bookings" options={{ href: null, title: 'Bookings' }} />
-        <Tabs.Screen name="analytics" options={{ href: null, title: 'Analytics' }} />
-        <Tabs.Screen name="resources" options={{ href: null, title: 'Resources' }} />
-        <Tabs.Screen name="clientes" options={{ href: null, title: 'Clientes' }} />
-        <Tabs.Screen name="settings" options={{ href: null, title: 'Settings' }} />
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: 'Home',
+          }}
+        />
+        <Tabs.Screen
+          name="workforce"
+          options={{
+            title: 'Equipe IA',
+          }}
+        />
+        <Tabs.Screen
+          name="conversations"
+          options={{
+            title: 'Conversas',
+          }}
+        />
+
+        <Tabs.Screen name="ai-coach" options={{ href: null }} />
+        <Tabs.Screen name="learn" options={{ href: null }} />
+        <Tabs.Screen name="opportunities" options={{ href: null }} />
+        <Tabs.Screen name="crm" options={{ href: null }} />
+        <Tabs.Screen name="automations" options={{ href: null }} />
+        <Tabs.Screen name="treasure-vault" options={{ href: null }} />
+        <Tabs.Screen name="tasks" options={{ href: null }} />
+        <Tabs.Screen name="marketing" options={{ href: null }} />
+        <Tabs.Screen name="bookings" options={{ href: null }} />
+        <Tabs.Screen name="analytics" options={{ href: null }} />
+        <Tabs.Screen name="resources" options={{ href: null }} />
+        <Tabs.Screen name="clientes" options={{ href: null }} />
+        <Tabs.Screen name="settings" options={{ href: null }} />
       </Tabs>
     </SummusAppShell>
   )

@@ -8,11 +8,16 @@ import type {
   UserGamificationState,
 } from '../types/gamification'
 import {
+  DEFAULT_GROWTH_ACTION,
+  GROWTH_ACTIONS,
+} from '../constants/growth-actions'
+import {
   applyBusinessHealthImpact,
   calculateTotalScore,
   resolveCompanyTier,
 } from '../utils/gamification-helpers'
 import { generateId } from '../utils/generate-id'
+import type { TimelineActionItem, UserProfile } from '../types/gamification'
 
 const INITIAL_BUSINESS_HEALTH: Omit<BusinessHealthScores, 'totalScore'> = {
   marketing: 72,
@@ -28,6 +33,10 @@ const INITIAL_GAMIFICATION_STATE: UserGamificationState = {
   streakDays: 14,
   influencePoints: 2450,
   completedActions: 32,
+  userProfile: null,
+  companyStage: 'Iniciante',
+  potentialRevenue: 8400,
+  timeline: [],
   businessHealth: {
     ...INITIAL_BUSINESS_HEALTH,
     totalScore: calculateTotalScore(INITIAL_BUSINESS_HEALTH),
@@ -94,6 +103,24 @@ function createActivityEntry(
     date: resolveActivityDateLabel(),
     action: `${MISSION_ACTIVITY_LABELS[impactCategory]} (+${impactValue} pts)`,
     type: impactCategory,
+  }
+}
+
+function createTimelineEntry(
+  actionId: string,
+  title: string,
+  xpGained: number,
+  revenueGained: number,
+  type: TimelineActionItem['type'],
+): TimelineActionItem {
+  return {
+    id: generateId(),
+    actionId,
+    title,
+    executedAt: resolveActivityDateLabel(),
+    xpGained,
+    revenueGained,
+    type,
   }
 }
 
@@ -208,6 +235,65 @@ export function GamificationProvider({
     }))
   }, [])
 
+  const setUserProfile = useCallback((profile: UserProfile) => {
+    setState((current) => ({
+      ...current,
+      userProfile: profile,
+    }))
+  }, [])
+
+  const setCompanyStage = useCallback((stage: UserGamificationState['companyStage']) => {
+    setState((current) => ({
+      ...current,
+      companyStage: stage,
+    }))
+  }, [])
+
+  const executeAction = useCallback((actionId: string) => {
+    const action = GROWTH_ACTIONS[actionId] ?? {
+      ...DEFAULT_GROWTH_ACTION,
+      title: `${DEFAULT_GROWTH_ACTION.title} (${actionId})`,
+    }
+
+    setState((current) => {
+      const withXp = applyXpReward(current, action.xpReward)
+      const impactValue = Math.round(action.xpReward * 0.08)
+      const nextBusinessHealth = applyBusinessHealthImpact(
+        withXp.businessHealth,
+        action.impactCategory,
+        impactValue,
+      )
+
+      return {
+        ...withXp,
+        businessHealth: nextBusinessHealth,
+        companyTier: resolveCompanyTier(nextBusinessHealth.totalScore),
+        potentialRevenue: withXp.potentialRevenue + action.revenueGain,
+        completedActions: withXp.completedActions + 1,
+        influencePoints: withXp.influencePoints + Math.round(action.xpReward * 0.5),
+        timeline: [
+          createTimelineEntry(
+            actionId,
+            action.title,
+            action.xpReward,
+            action.revenueGain,
+            action.impactCategory,
+          ),
+          ...withXp.timeline,
+        ].slice(0, 30),
+        recentActivity: [
+          {
+            id: generateId(),
+            date: resolveActivityDateLabel(),
+            action: `IA executou: ${action.title} (+R$ ${action.revenueGain.toLocaleString('pt-BR')})`,
+            type: action.impactCategory,
+          },
+          ...withXp.recentActivity,
+        ].slice(0, 20),
+      }
+    })
+  }, [])
+
   const contextValue = useMemo<GamificationContextValue>(() => {
     const { currentXp, nextLevelXp } = state.economy
     const xpProgress = resolveXpProgress(currentXp, nextLevelXp)
@@ -219,8 +305,12 @@ export function GamificationProvider({
       maxXp: nextLevelXp,
       xpProgress,
       xpRemaining,
+      isOnboardingComplete: state.userProfile !== null,
       addXp,
       completeMission,
+      executeAction,
+      setUserProfile,
+      setCompanyStage,
       incrementCompletedActions,
       incrementInfluencePoints,
       updateStreak,
@@ -229,6 +319,9 @@ export function GamificationProvider({
     state,
     addXp,
     completeMission,
+    executeAction,
+    setUserProfile,
+    setCompanyStage,
     incrementCompletedActions,
     incrementInfluencePoints,
     updateStreak,

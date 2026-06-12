@@ -90,3 +90,61 @@ export function resolveHealthColor(score: number): string {
 
   return '#EF4444'
 }
+
+const NEXT_ACTION_BY_COLUMN: Record<string, string> = {
+  'col-leads': 'Reativar com mensagem personalizada',
+  'col-contato': 'Agendar follow-up esta semana',
+  'col-proposta': 'Enviar proposta com urgência suave',
+  'col-negociacao': 'Resolver objeção e fechar negócio',
+}
+
+const PRIORITY_BASE_IMPACT: Record<KanbanCardWithClient['priority'], number> = {
+  alta: 8400,
+  media: 4200,
+  baixa: 1800,
+}
+
+const COLUMN_IMPACT_MULTIPLIER: Record<string, number> = {
+  'col-negociacao': 1.25,
+  'col-proposta': 1.1,
+  'col-contato': 0.9,
+  'col-leads': 0.75,
+}
+
+export type GrowthFlowLead = KanbanCardWithClient & {
+  healthScore: number
+  nextBestAction: string
+  dealImpact: number
+}
+
+export function resolveNextBestAction(card: KanbanCardWithClient): string {
+  return NEXT_ACTION_BY_COLUMN[card.columnId] ?? 'Definir próximo passo com a IA'
+}
+
+export function estimateDealImpact(
+  card: KanbanCardWithClient,
+  healthScore: number,
+): number {
+  const base = PRIORITY_BASE_IMPACT[card.priority]
+  const multiplier = COLUMN_IMPACT_MULTIPLIER[card.columnId] ?? 1
+  const healthFactor = 0.65 + healthScore / 200
+
+  return Math.round(base * multiplier * healthFactor)
+}
+
+export function buildGrowthFlowLeads(cards: KanbanCardWithClient[]): GrowthFlowLead[] {
+  const activeCards = cards.filter((card) => card.columnId !== 'col-fechado')
+
+  return activeCards
+    .map((card) => {
+      const healthScore = computeLeadHealthScore(card)
+
+      return {
+        ...card,
+        healthScore,
+        nextBestAction: resolveNextBestAction(card),
+        dealImpact: estimateDealImpact(card, healthScore),
+      }
+    })
+    .sort((a, b) => b.dealImpact - a.dealImpact)
+}

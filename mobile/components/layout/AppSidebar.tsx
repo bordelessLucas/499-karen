@@ -2,19 +2,19 @@ import { Pressable, Text, View } from 'react-native'
 import { Link, usePathname } from 'expo-router'
 import {
   BarChart3,
-  Briefcase,
+  Bot,
   Home,
+  MessageSquare,
   Settings,
   Users,
-  Zap,
 } from 'lucide-react-native'
 import { useAuth } from '@shared/contexts'
 
 const mainNavItems = [
   { href: '/(tabs)', label: 'Início', icon: Home, match: (path: string) => path === '/' || path === '/index' || path.endsWith('/(tabs)') },
   { href: '/(tabs)/clientes', label: 'Clientes', icon: Users, match: (path: string) => path.includes('clientes') },
-  { href: '/(tabs)/crm', label: 'CRM', icon: Briefcase, match: (path: string) => path.includes('crm') },
-  { href: '/(tabs)/automations', label: 'Automações', icon: Zap, match: (path: string) => path.includes('automations') },
+  { href: '/(tabs)/workforce', label: 'Equipe IA', icon: Bot, match: (path: string) => path.includes('workforce') },
+  { href: '/(tabs)/conversations', label: 'Conversas', icon: MessageSquare, match: (path: string) => path.includes('conversations') },
   { href: '/(tabs)/settings', label: 'Configurações', icon: Settings, match: (path: string) => path.includes('settings') },
 ] as const
 

@@ -1,7 +1,9 @@
 import { createContext } from 'react'
 import type {
+  CompanyStage,
   MissionImpactCategory,
   UserGamificationState,
+  UserProfile,
 } from '../types/gamification'
 
 export type GamificationContextValue = UserGamificationState & {
@@ -10,6 +12,7 @@ export type GamificationContextValue = UserGamificationState & {
   maxXp: number
   xpProgress: number
   xpRemaining: number
+  isOnboardingComplete: boolean
   addXp: (amount: number) => void
   completeMission: (
     xpReward: number,
@@ -17,6 +20,9 @@ export type GamificationContextValue = UserGamificationState & {
     impactCategory: MissionImpactCategory,
     impactValue: number,
   ) => void
+  executeAction: (actionId: string) => void
+  setUserProfile: (profile: UserProfile) => void
+  setCompanyStage: (stage: CompanyStage) => void
   incrementCompletedActions: (amount?: number) => void
   incrementInfluencePoints: (amount: number) => void
   updateStreak: (days: number) => void

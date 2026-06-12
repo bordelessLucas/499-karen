@@ -47,12 +47,36 @@ export type GamificationStats = {
   completedActions: number
 }
 
+export type UserProfile =
+  | 'Clínica'
+  | 'Med Spa'
+  | 'Agência'
+  | 'E-commerce'
+  | 'Consultor'
+  | 'Empresário'
+
+export type CompanyStage = 'Iniciante' | 'Estruturada' | 'Escalável'
+
+export type TimelineActionItem = {
+  id: string
+  actionId: string
+  title: string
+  executedAt: string
+  xpGained: number
+  revenueGained: number
+  type: BusinessHealthCategoryKey | 'general'
+}
+
 export type UserGamificationState = GamificationLevel &
   GamificationStats & {
+    userProfile: UserProfile | null
+    companyStage: CompanyStage
+    potentialRevenue: number
     businessHealth: BusinessHealthScores
     companyTier: CompanyTier
     economy: GamificationEconomy
     recentActivity: RecentActivityItem[]
+    timeline: TimelineActionItem[]
   }
 
 /** @deprecated Use `economy.currentXp` — mantido para retrocompatibilidade */

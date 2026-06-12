@@ -10,6 +10,7 @@ export type {
 export type {
   BusinessHealthCategoryKey,
   BusinessHealthScores,
+  CompanyStage,
   CompanyTier,
   GamificationEconomy,
   GamificationLevel,
@@ -17,7 +18,9 @@ export type {
   GamificationStats,
   MissionImpactCategory,
   RecentActivityItem,
+  TimelineActionItem,
   UserGamificationState,
+  UserProfile,
 } from './gamification'
 export type {
   ClientWithPipeline,
